@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Task = require("./models/taskModel");
 const taskRoutes = require("./routes/taskRoute");
+const cors = require("cors");
 
 const app = express();
 
@@ -21,6 +22,7 @@ mongoose
 // MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); // This piece of code is necessary to have access to the form data
+app.use(cors());
 app.use("/api/tasks", taskRoutes);
 
 // ROUTES
