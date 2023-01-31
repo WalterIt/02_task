@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 import Task from "./Task";
 import TaskForm from "./TaskForm";
 import { URL } from "../App";
+import loadingImg from "../assets/loader.gif";
 
 export default function TaskList() {
+  const [tasks, setTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     completed: false,
@@ -32,9 +36,27 @@ export default function TaskList() {
       setFormData({ ...formData, name: "" });
     } catch (error) {
       toast.error(error.message);
-      console.log(error);
+      // console.log(error);
     }
   }
+
+  async function getTasks() {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${URL}/api/tasks/`);
+      console.log(data);
+      setTasks(data);
+      setLoading(false);
+    } catch (error) {
+      toast.error(error.message);
+      // console.log(error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getTasks();
+  }, []);
 
   return (
     <div>
@@ -46,14 +68,27 @@ export default function TaskList() {
       />
       <div className="--flex-between --pb">
         <p>
-          <b>Total Tasks: </b> 0
+          <b>Total Tasks: </b> {tasks.length}
         </p>
         <p>
           <b>Completed Tasks: </b> 0
         </p>
       </div>
       <hr />
-      <Task />
+      {loading && (
+        <div className="--flex-center">
+          <img src={loadingImg} alt="loading image" />
+        </div>
+      )}
+      {!loading && tasks.length === 0 ? (
+        <p className="--py">No Task added. Please, add a Task!</p>
+      ) : (
+        <>
+          {tasks.map((task, index) => {
+            return <Task task={task} index={index} key={task._id} />;
+          })}
+        </>
+      )}
     </div>
   );
 }
