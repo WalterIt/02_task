@@ -11,6 +11,8 @@ export default function TaskList() {
   const [tasks, setTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [taskId, setTaskId] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     completed: false,
@@ -67,6 +69,27 @@ export default function TaskList() {
     }
   }
 
+  async function getSingleTask(task) {
+    setFormData({ name: task.name, completed: false });
+    setTaskId(task._id);
+    setIsEditing(true);
+  }
+
+  async function updateTask(e) {
+    e.preventDefault();
+    if (name === "") {
+      return toast.error("This field can not be empty!");
+    }
+    try {
+      await axios.put(`${URL}/api/tasks/${taskId}`, formData);
+      setFormData({ ...formData, name: "" });
+      setIsEditing(false);
+      getTasks();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
   return (
     <div>
       <h2>Task Manager</h2>
@@ -74,6 +97,8 @@ export default function TaskList() {
         name={name}
         handleInputChange={handleInputChange}
         createTask={createTask}
+        isEditing={isEditing}
+        updateTask={updateTask}
       />
       <div className="--flex-between --pb">
         <p>
@@ -100,6 +125,7 @@ export default function TaskList() {
                 index={index}
                 key={task._id}
                 deleteTask={deleteTask}
+                getSingleTask={getSingleTask}
               />
             );
           })}

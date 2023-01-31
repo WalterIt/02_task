@@ -1,6 +1,12 @@
-export default function TaskForm({ createTask, name, handleInputChange }) {
+export default function TaskForm({
+  createTask,
+  name,
+  handleInputChange,
+  isEditing,
+  updateTask,
+}) {
   return (
-    <form className="task-form" onSubmit={createTask}>
+    <form className="task-form" onSubmit={isEditing ? updateTask : createTask}>
       <input
         type="text"
         name="name"
@@ -9,7 +15,8 @@ export default function TaskForm({ createTask, name, handleInputChange }) {
         onChange={handleInputChange}
         id=""
       />
-      <button type="submit">Add</button>
+
+      <button type="submit">{isEditing ? "Edit" : "Add"}</button>
     </form>
   );
 }
