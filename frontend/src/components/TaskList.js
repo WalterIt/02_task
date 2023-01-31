@@ -58,6 +58,15 @@ export default function TaskList() {
     getTasks();
   }, []);
 
+  async function deleteTask(id) {
+    try {
+      await axios.delete(`${URL}/api/tasks/${id}`);
+      getTasks();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
   return (
     <div>
       <h2>Task Manager</h2>
@@ -85,7 +94,14 @@ export default function TaskList() {
       ) : (
         <>
           {tasks.map((task, index) => {
-            return <Task task={task} index={index} key={task._id} />;
+            return (
+              <Task
+                task={task}
+                index={index}
+                key={task._id}
+                deleteTask={deleteTask}
+              />
+            );
           })}
         </>
       )}
