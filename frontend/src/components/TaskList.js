@@ -36,6 +36,7 @@ export default function TaskList() {
       await axios.post(`${URL}/api/tasks/`, formData);
       toast.success("Task added successfully!");
       setFormData({ ...formData, name: "" });
+      getTasks();
     } catch (error) {
       toast.error(error.message);
       // console.log(error);
@@ -90,6 +91,26 @@ export default function TaskList() {
     }
   }
 
+  async function setTaskCompleted(task) {
+    const newFormData = {
+      name: task.name,
+      completed: true,
+    };
+    try {
+      await axios.put(`${URL}/api/tasks/${task._id}`, newFormData);
+      getTasks();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
+  useEffect(() => {
+    const totalCompletedTasks = tasks.filter((task) => {
+      return task.completed === true;
+    });
+    setCompletedTasks(totalCompletedTasks);
+  }, [tasks]);
+
   return (
     <div>
       <h2>Task Manager</h2>
@@ -100,14 +121,18 @@ export default function TaskList() {
         isEditing={isEditing}
         updateTask={updateTask}
       />
-      <div className="--flex-between --pb">
-        <p>
-          <b>Total Tasks: </b> {tasks.length}
-        </p>
-        <p>
-          <b>Completed Tasks: </b> 0
-        </p>
-      </div>
+
+      {tasks.length > 0 && (
+        <div className="--flex-between --pb">
+          <p>
+            <b>Total Tasks: </b> {tasks.length}
+          </p>
+          <p>
+            <b>Completed Tasks: </b> {completedTasks.length}
+          </p>
+        </div>
+      )}
+
       <hr />
       {loading && (
         <div className="--flex-center">
@@ -115,7 +140,9 @@ export default function TaskList() {
         </div>
       )}
       {!loading && tasks.length === 0 ? (
-        <p className="--py">No Task added. Please, add a Task!</p>
+        <p className="--py">
+          <b>No Task added. Please, add a Task! </b>{" "}
+        </p>
       ) : (
         <>
           {tasks.map((task, index) => {
@@ -126,6 +153,7 @@ export default function TaskList() {
                 key={task._id}
                 deleteTask={deleteTask}
                 getSingleTask={getSingleTask}
+                setTaskCompleted={setTaskCompleted}
               />
             );
           })}
